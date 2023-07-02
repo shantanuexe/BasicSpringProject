@@ -1,0 +1,94 @@
+@Entity
+@Table(name = "registrations")
+public class Registration {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Lob
+    @Column(nullable = false)
+    private byte[] resume;
+
+    @Column(name = "10th_marks")
+    private Double tenthMarks;
+
+    @Column(name = "12th_marks")
+    private Double twelfthMarks;
+
+    @Column(name = "graduation_college")
+    private String graduationCollege;
+
+    @Column(name = "github_link")
+    private String githubLink;
+
+    @Column(name = "linkedin")
+    private String linkedin;
+
+    @Column(name = "dob")
+    private LocalDate dateOfBirth;
+
+    @Column(name = "preferred_location")
+    private String preferredLocation;
+
+    @Column(name = "address")
+    private String address;
+
+    // Getters and setters
+}
+
+
+-----------------
+
+public class RegistrationDto {
+    private MultipartFile resume;
+    private Double tenthMarks;
+    private Double twelfthMarks;
+    private String graduationCollege;
+    private String githubLink;
+    private String linkedin;
+    private LocalDate dateOfBirth;
+    private String preferredLocation;
+    private String address;
+
+    // Getters and setters
+}
+
+-------
+@Service
+public class RegistrationService {
+    @Autowired
+    private RegistrationRepository registrationRepository;
+
+    public void saveRegistrationDetails(RegistrationDto registrationDto) {
+        Registration registration = new Registration();
+        registration.setResume(registrationDto.getResume().getBytes());
+        registration.setTenthMarks(registrationDto.getTenthMarks());
+        registration.setTwelfthMarks(registrationDto.getTwelfthMarks());
+        registration.setGraduationCollege(registrationDto.getGraduationCollege());
+        registration.setGithubLink(registrationDto.getGithubLink());
+        registration.setLinkedin(registrationDto.getLinkedin());
+        registration.setDateOfBirth(registrationDto.getDateOfBirth());
+        registration.setPreferredLocation(registrationDto.getPreferredLocation());
+        registration.setAddress(registrationDto.getAddress());
+
+        registrationRepository.save(registration);
+    }
+}
+
+-------
+@RestController
+@RequestMapping("/api/registration")
+public class RegistrationController {
+    @Autowired
+    private RegistrationService registrationService;
+
+    @PostMapping
+    public ResponseEntity<String> saveRegistrationDetails(@ModelAttribute RegistrationDto registrationDto) {
+        try {
+            registrationService.saveRegistrationDetails(registrationDto);
+            return ResponseEntity.ok("Registration details saved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save registration details");
+        }
+    }
+}
